@@ -477,6 +477,8 @@ observation = state_update(env.tx_pkt_no, env.ser_cat)
 print(observation)
 # observation = torch.from_numpy(observation).unsqueeze(0).to(torch.float)
 
+if not os.path.exists('./log/Dueling_GANDDQN'):
+    os.makedirs('./log/Dueling_GANDDQN')
 log = {}
 rewards = []
 # utility = [0.]
@@ -507,6 +509,7 @@ for t in range(1, total_timesteps + 1):
     
     qoe, se = env.get_reward()
     threshold = 6 + 4 * t / (total_timesteps/1.5) 
+    print('------------------------------------------------------------------------------')
     print(threshold)
     utility, reward = calc_reward(qoe, se, threshold)
     QoE.append(qoe.tolist())
@@ -525,6 +528,7 @@ for t in range(1, total_timesteps + 1):
     print('DuelingGANDDQN=====episode: %d, epsilon: %.3f, utility: %.5f, reward: %.5f' % (t, epsilon, utility, reward))
     print('qoe', qoe)
     print('bandwidth-allocation solution', action_space[action])
+    print('------------------------------------------------------------------------------\n')
 
     # plot_rewards(rewards)
 
