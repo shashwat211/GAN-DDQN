@@ -466,7 +466,7 @@ plt.ion()
 env = cellularEnv(ser_cat=ser_cat_vec, learning_windows=learning_window, dl_mimo=dl_mimo)
 action_space = action_space(10, 3) * band_per
 num_actions = len(action_space)
-print(num_actions)
+print('Number of actions =', num_actions)
 
 model = WGAN_GP_Agent(device=device, state_size=3, noise_size=10, num_actions=num_actions, num_particles=30)
 # model.load_w()
@@ -474,7 +474,7 @@ G_noise = (torch.rand(1, model.noise_size)).to(torch.device(device))
 env.countReset()
 env.activity()
 observation = state_update(env.tx_pkt_no, env.ser_cat)
-print(observation)
+print('Observation =', observation)
 # observation = torch.from_numpy(observation).unsqueeze(0).to(torch.float)
 
 if not os.path.exists('./log/Dueling_GANDDQN'):
@@ -510,7 +510,8 @@ for t in range(1, total_timesteps + 1):
     qoe, se = env.get_reward()
     threshold = 6 + 4 * t / (total_timesteps/1.5) 
     print('------------------------------------------------------------------------------')
-    print(threshold)
+    print('Epoch', t)
+    print('Threshold =', threshold)
     utility, reward = calc_reward(qoe, se, threshold)
     QoE.append(qoe.tolist())
     SE.append(se[0])
@@ -518,7 +519,7 @@ for t in range(1, total_timesteps + 1):
     # kpis.append(kpi)
 
     observation = state_update(env.tx_pkt_no, env.ser_cat)
-    print(observation)
+    print('Observation =', observation)
     # observation = torch.from_numpy(observation).unsqueeze(0).to(torch.float)
 
     model.append_to_replay(prev_observation, action, reward, observation)
@@ -545,7 +546,7 @@ for t in range(1, total_timesteps + 1):
         f.write(json.dumps(log))
         f.close()
     
-print('Complete')
+print('Complete!')
 plt.ioff()
 plt.show() 
 
