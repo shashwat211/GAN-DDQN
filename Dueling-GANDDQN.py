@@ -188,8 +188,8 @@ class WGAN_GP_Agent(object):
         self.memory.push((s, a, r, s_))
 
     def save_w(self):
-            if not os.path.exists('./saved_agents/Dueling_GANDDQN-v2'):
-                os.makedirs('./saved_agents/Dueling_GANDDQN-v2')
+            if not os.path.exists('./saved_agents/Dueling_GANDDQN'):
+                os.makedirs('./saved_agents/Dueling_GANDDQN')
             torch.save(self.G_model.state_dict(), './saved_agents/Dueling_GANDDQN/Dueling_GANDDQN_G-v2.dump')
             torch.save(self.D_model.state_dict(), './saved_agents/Dueling_GANDDQN/Dueling_GANDDQN_D-v2.dump')
 
