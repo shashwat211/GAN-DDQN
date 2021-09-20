@@ -213,7 +213,7 @@ class WGAN_GP_Agent(object):
             self.D_model.load_state_dict(torch.load(fname_D_model))
 
     def plot_loss(self):
-        plt.figure(2)
+        plt.figure(7)
         plt.clf()
         plt.title('Training loss')
         plt.xlabel('Episode')
@@ -365,15 +365,15 @@ class WGAN_GP_Agent(object):
         MSE_loss = self.MSE(current_q_value-expected_q_value)
         MSE_loss.backward()
         self.G_optimizer_MSE.step()
-        # G_loss = G_loss_GAN + MSE_loss
+        G_loss = G_loss_GAN + MSE_loss
  
         
-        # for param in self.G_model.parameters():
-        #     param.grad.data.clamp_(-1, 1)
+        for param in self.G_model.parameters():
+            param.grad.data.clamp_(-1, 1)
 
 
-        # self.train_hist['G_loss'].append(G_loss.item())
-        # self.train_hist['D_loss'].append(D_loss.item())
+        self.train_hist['G_loss'].append(G_loss.item())
+        self.train_hist['D_loss'].append(D_loss.item())
 
         self.update_target_model()
 
@@ -427,19 +427,35 @@ def get_action(model, s, z, eps, device):
     else:
         return np.random.randint(0, model.num_actions)
 
-def plot_rewards(rewards):
-    plt.figure(1)
+def plot_chart(data, data_label, fig_no):
+    plt.figure(fig_no)
     plt.clf()
-    rewards = np.array(rewards)
-    plt.title('Training...')
+    plt.title(data_label + ' Chart')
     plt.xlabel('Episode')
-    plt.ylabel('Duration')
-    plt.plot(rewards.cumsum())
+    plt.ylabel(data_label)
+    plt.plot(data)
     plt.pause(0.001)
+
+def plot_rewards(rewards):
+    rewards = np.array(rewards)
+    plot_chart(rewards.cumsum(), 'Reward', 1)
+
+
+def plot_utility(utilities):
+    plot_chart(utilities, 'Utility', 2)
+
+def plot_se(SE):
+    plot_chart(SE, 'SE', 3)
+
+def plot_qoe(QoE):
+    plot_chart([row[0] for row in QoE], 'QoE VoLTE', 4)
+    plot_chart([row[1] for row in QoE], 'QoE mMTC', 5)
+    plot_chart([row[2] for row in QoE], 'QoE urLLC', 6)
+
 
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 device = 'cuda'
-total_timesteps = 10000
+total_timesteps = 1100
 
 epsilon_start    = 1.0
 epsilon_final    = 0.01
@@ -481,6 +497,7 @@ if not os.path.exists('./log/Dueling_GANDDQN'):
     os.makedirs('./log/Dueling_GANDDQN')
 log = {}
 rewards = []
+utilities = []
 # utility = [0.]
 observations = []
 actions = []
@@ -516,6 +533,7 @@ for t in range(1, total_timesteps + 1):
     QoE.append(qoe.tolist())
     SE.append(se[0])
     rewards.append(reward)
+    utilities.append(utility)
     # kpis.append(kpi)
 
     observation = state_update(env.tx_pkt_no, env.ser_cat)
@@ -531,8 +549,6 @@ for t in range(1, total_timesteps + 1):
     print('bandwidth-allocation solution', action_space[action])
     print('------------------------------------------------------------------------------\n')
 
-    # plot_rewards(rewards)
-
     if t % 200 == 0:
         print('frame index [%d], epsilon [%.4f]' % (t, epsilon))
         model.save_w()
@@ -546,6 +562,12 @@ for t in range(1, total_timesteps + 1):
         f.write(json.dumps(log))
         f.close()
     
+plot_rewards(rewards)
+plot_utility(utilities)
+plot_se(SE)
+plot_qoe(QoE)
+model.plot_loss()
+
 print('Complete!')
 plt.ioff()
 plt.show() 
