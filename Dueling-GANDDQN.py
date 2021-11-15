@@ -453,8 +453,8 @@ def plot_qoe(QoE):
     plot_chart([row[2] for row in QoE], 'QoE urLLC', 6)
 
 
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-device = 'cuda'
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = 'cuda'
 total_timesteps = 1100
 
 epsilon_start    = 1.0
